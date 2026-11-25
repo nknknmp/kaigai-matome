@@ -1,0 +1,238 @@
+{
+ "id": "1y3mlt8",
+ "subreddit": "todayilearned",
+ "title": "TIL in 2019 DoorDash listed a pizzeria without permission and sold its $24 pizzas for $16, so the owner ordered his own pizzas and kept the $8 difference",
+ "selftext": "",
+ "author": "PolarisXvi",
+ "score": 50689,
+ "num_comments": 1592,
+ "created_utc": 1795451023,
+ "image": "",
+ "link": "https://gizmodo.com/doordash-pizza-arbitrage-shows-the-fubar-economics-of-d-1843530770",
+ "permalink": "https://www.reddit.com/r/todayilearned/comments/1y3mlt8/",
+ "comments": [
+  {
+   "id": "19t2tm7bzu6ud",
+   "author": "Achaion34",
+   "score": 18432,
+   "is_op": false,
+   "body": "For everyone else confused by this situation. Pizzas sell for $24. Doordash, trying to strongarm business into using them by drumming up delivery traffic, offers the pizzas for $16 while still paying the restaurant $24 for each one. Owner realized he could pay $16 on Doordash for his own pizza, and Doordash would pay his restaurant the full $24. After trying this a few times, he decided to just start filling the boxes he ordered with dough and nothing else, increasing the profit margin since there was no delivery customer to complain. ",
+   "replies": [
+    {
+     "id": "19t2vkzlsr0v7",
+     "author": "hypercosm_dot_net",
+     "score": 6840,
+     "is_op": false,
+     "body": "Funny enough they used this as a plot in Silicon Valley. \n\nThe main character loses all of his devs to a pizza delivery service called *Sliceline*. He discovers that they're losing money on each pizza, and knows they have limited funding. So he creates a botnet to strategically order pizzas to bleed their company. \n\nI would not be surprised if this was the inspiration for that plot."
+    },
+    {
+     "id": "19t2ttr0w90yo",
+     "author": "colantor",
+     "score": 770,
+     "is_op": false,
+     "body": "Who did they deliver to? Did he just hand them a pizza box and they handed it back to him?"
+    }
+   ]
+  },
+  {
+   "id": "19t2sx31oehpc",
+   "author": "PolarisXvi",
+   "score": 9828,
+   "is_op": true,
+   "body": "then he started ordering boxes of just dough. doordash still paid full price every time and he cleared about $75 before they stopped",
+   "replies": [
+    {
+     "id": "19t2tbfqnj7s5",
+     "author": "grasssnakequeen",
+     "score": 5379,
+     "is_op": false,
+     "body": "75 bucks? They caught on pretty quickly."
+    },
+    {
+     "id": "19t2txgk3u97n",
+     "author": "AbabababababababaIe",
+     "score": 425,
+     "is_op": false,
+     "body": "Turns out Doordash does this as part of a “demand review” so they can approach business and show them just how much they could be making with them. DD assumes responsibility for anything that goes  wrong with orders in this time"
+    }
+   ]
+  },
+  {
+   "id": "19t2tayeo5c85",
+   "author": "ffsnametaken",
+   "score": 3296,
+   "is_op": false,
+   "body": "I don't know if I'm bad at maths or if this makes no sense. I'd be very easy to scam",
+   "replies": [
+    {
+     "id": "19t2tlopbumn9",
+     "author": "King_Kthulhu",
+     "score": 2376,
+     "is_op": false,
+     "body": "Doordash had an error where they charged people 16$  for a pizza, but doordash the company still had to pay the full price of 24$ per pizza.  So the owner just ordered their own pizzas from doordash, paid them $16, they paid him $24. Effectively paying him 8$ Everytime he ordered a pizza. "
+    },
+    {
+     "id": "19t2telavul29",
+     "author": "CapNCookM8",
+     "score": 435,
+     "is_op": false,
+     "body": "Yeah, unless they were sure this was going to be refunded, this sounds like the episode of Arrested Development where the kids throw away a banana while pocketing a dollar, thinking they were breaking even when really they were doubling losses. "
+    }
+   ]
+  },
+  {
+   "id": "19t2tftkx1wrk",
+   "author": "JFeth",
+   "score": 2093,
+   "is_op": false,
+   "body": "DD used to do that all the time. I was a dasher back in the day and the number of owners that didn't know they were on the app was ridiculous. ",
+   "replies": [
+    {
+     "id": "19t2tmw1joftu",
+     "author": "Travis238",
+     "score": 947,
+     "is_op": false,
+     "body": "I felt bad for the drivers, but when they did this to my place we simply refused to give them the food and told them to tell the customer to issue a chargeback, and to tell their boss we don't do business with DD.\n\nEmails and phonecalls didn't get us taken off, but that did."
+    },
+    {
+     "id": "19t2tp7if16ar",
+     "author": "Vandirac",
+     "score": 802,
+     "is_op": false,
+     "body": "A few restaurants in my city have a \"no doordash/Uber eats\" policy after finding out they were listed without their knowledge, and having had issues with delivery turned into bad reviews for the restaurant.\n\nIt was on local news a while ago."
+    }
+   ]
+  },
+  {
+   "id": "19t2thty3njfk",
+   "author": "fatyg5",
+   "score": 227,
+   "is_op": false,
+   "body": "Basically, Doordash was using the wrong price for his pizzas. The orders were being picked up by a driver and paid for by the Doordash credit card. They do this to try to approach businesses later and show how Doordash has made their business more volume in sales.\n\nBefore Doordash was made aware of the pricing issue, he ordered his own pizza for $16 but Doordash's credit card paid him $24. I don't believe Doordash was collecting a massive fee because they were trying to incentivize ordering from his business to weasel their way into making him a legit supported business on their app.",
+   "replies": [
+    {
+     "id": "19t2u70lae1ic",
+     "author": "BertRenolds",
+     "score": 9,
+     "is_op": false,
+     "body": "That is the title, yes."
+    }
+   ]
+  },
+  {
+   "id": "19t2tgpxkpkpv",
+   "author": "ghillisuit95",
+   "score": 90,
+   "is_op": false,
+   "body": "I keep trying to reply to people with this, but then it says “parent comment has been deleted”. Idk what’s up with that. But here’s a summary:\n\nThe restaurant owner made money, by ordering pizzas on the app (paying $16/pizza to DoorDash) and charging the driver who came to pick it up the actual menu price ($24/pizza). \n\nBasically, at the time, DoorDash was trying to get more restaurants onto the app by scraping their online menu and putting it on the app, and sending drivers to the restaurant with a cc that charged DoorDash for the meal. This restaurant owner realized the company was paying him $24 for the pizzas, and charging customers $16 because their menu scraper made a mistake",
+   "replies": [
+    {
+     "id": "19t2txz52naxs",
+     "author": "RepublicofPixels",
+     "score": 11,
+     "is_op": false,
+     "body": "People keep deleting their comments when they either read the other comments saying why they're wrong, or, far less likely it seems, when they actually read the article. Hence the popup"
+    }
+   ]
+  },
+  {
+   "id": "19t2tfr7vicyp",
+   "author": "Halkabot",
+   "score": 72,
+   "is_op": false,
+   "body": "Doordash does this as demand testing. Basically,  theyll list a place and show all the customers to the business owner to convince them to join. ",
+   "replies": [
+    {
+     "id": "19t2tua23ebky",
+     "author": "BeetEater_",
+     "score": 33,
+     "is_op": false,
+     "body": "Pretty scummy to list items for 2/3rds the price and then do that. Not a surprise from DD though."
+    }
+   ]
+  },
+  {
+   "id": "19t2tcfi5p3xc",
+   "author": "90403scompany",
+   "score": 59,
+   "is_op": false,
+   "body": "That is almost the plot of a *Silicon Valley* episode. ",
+   "replies": [
+    {
+     "id": "19t2tfhxpcdnk",
+     "author": "PickledPlumPlot",
+     "score": 9,
+     "is_op": false,
+     "body": "Pretty sure the episode was inspired by this incident?"
+    }
+   ]
+  },
+  {
+   "id": "19t2tefjcaasj",
+   "author": "GodsBicep",
+   "score": 51,
+   "is_op": false,
+   "body": "Can somebody translate the title into English?",
+   "replies": [
+    {
+     "id": "19t2tlazjo7xf",
+     "author": "anarchisturtle",
+     "score": 65,
+     "is_op": false,
+     "body": "DoorDash added his pizza shop to their platform without his knowledge or permission, which he wasn’t thrilled with. Back then (and maybe still now, not sure) DoorDash used to essentially subsidize the cost of food on the app to make it more appealing to users. What would happen is that someone would order a pizza for 16 dollars, DoorDash would then order the pizza from the shop for 24 dollars. They were intentionally eating the loss to drive more users to platform without the long term goal of increasing prices after they had enough users. The shop owner realized what was happening and took advantage. He would order a pizza from his shop on DoorDash, and pay they 16 dollars. DoorDash then turned around and paid him 24 dollars for the pizza. Allowing him to 8 dollars without actually having to do anything"
+    },
+    {
+     "id": "19t2tiwi9855w",
+     "author": "notANexpert1308",
+     "score": 25,
+     "is_op": false,
+     "body": "He sells them for $24, DD sells for $16, he gets order, buys on DD, keep $8"
+    }
+   ]
+  },
+  {
+   "id": "19t2t80wpa7fk",
+   "author": "-GoneInSpace-",
+   "score": 36,
+   "is_op": false,
+   "body": "Idk, title makes it pretty clear. They were paying him full price but selling his pizzas for $8 less than that. Someone orders a pizza, he orders the same one knowing there won't be waste.",
+   "replies": []
+  }
+ ],
+ "ja": {
+  "title": "【朗報】DoorDash、勝手に載せたピザ屋のピザを24ドル→16ドルで販売 → 店主「自分で注文して差額8ドルもらうわ」",
+  "context": "DoorDash はアメリカの大手フードデリバリーアプリ（日本でいうウーバーイーツ的なやつ）。店の許可なく掲載して注文を取り、ドライバーが店で代金を立て替え払いする手法があった。",
+  "tags": [
+   "ニュース",
+   "雑学"
+  ],
+  "body": "",
+  "comments": {
+   "19t2tm7bzu6ud": "状況がわからん奴向けの解説な\nピザの定価は24ドル。DoorDashは「うちに入れば客が増えるで」って店を囲い込みたくて、ピザを16ドルで売りつつ、店には24ドル満額払ってた。\n店主「DoorDashで16ドルで自分のピザ買えば、DoorDashが店に24ドル払ってくれるやんけ」と気づく。\n何回かやったあと、どうせ配達先の客がいないから文句も出んやろってことで、注文された箱にピザ生地だけ入れて原価をさらに削った。",
+   "19t2vkzlsr0v7": "これシリコンバレー（ドラマ）で使われてたネタで草\n主人公が開発者を全員ピザ配達サービスの「Sliceline」に引き抜かれるんだけど、そこがピザ1枚ごとに赤字垂れ流してて資金も限られてると気づく。それでボットネットで戦略的にピザを大量注文して会社を干上がらせるって話\nこの件が元ネタでも驚かんわ",
+   "19t2ttr0w90yo": "配達先どこになってたんや？ 店主がピザの箱を渡して、ドライバーがそれを店主に返したんか？",
+   "19t2sx31oehpc": "そのあと生地だけの箱を注文し始めて、DoorDashは毎回満額払い続けて、止められるまでに75ドルくらい稼いだらしい",
+   "19t2tbfqnj7s5": "75ドル？ 気づくの早すぎだろ",
+   "19t2txgk3u97n": "実はDoorDashは「需要調査」としてこれをやってるんだよな。店に「うちを使えばこんだけ儲かりまっせ」って見せて営業するためやで。その間の注文トラブルは全部DoorDash持ちや",
+   "19t2tayeo5c85": "ワイが算数苦手なのか、話がおかしいのかわからん。ワイ詐欺に引っかかりやすそう",
+   "19t2tlopbumn9": "DoorDashがミスって客には16ドルで売ってたけど、会社は店に24ドル満額払わなきゃいけなかった。だから店主が自分の店のピザをDoorDashで注文して16ドル払うと、DoorDashから24ドルもらえる。注文のたびに8ドルの儲けってわけ",
+   "19t2telavul29": "返金される確信がなかったら、アレステッド・ディベロップメントでガキどもがバナナを捨てて1ドル懐に入れて「トントンやん」と思ってたら、実は損が倍になってた回みたいな話だぞ",
+   "19t2tftkx1wrk": "DDは昔からしょっちゅうこれやってた。ワイは昔ダッシャー（配達員）やってたけど、自分の店がアプリに載ってるの知らんオーナーがアホほどおったわ",
+   "19t2tmw1joftu": "配達員には悪いと思ったけど、うちの店でやられたときは料理を渡さんで、「客にチャージバックしてもらえ。あとDDとは取引せんって上司に伝えとけ」って言ったわ\nメールや電話じゃ外してくれんかったのに、それでやっと外れた",
+   "19t2tp7if16ar": "ワイの街には「DoorDash/Uber Eats お断り」にしてる店が何軒かある。知らんうちに載せられてて、配達でトラブって店の悪い評価がついたせいらしい\nちょっと前に地元ニュースにもなってた",
+   "19t2thty3njfk": "要はDoorDashがピザの値段を間違えて載せてたってこと。注文はドライバーが店で受け取って、DoorDashのクレカで支払う。あとで店に営業するときに「うちのおかげでこれだけ売上増えましたよ」って見せるためにやってる\nDoorDashが価格ミスに気づく前に、店主が16ドルで自分のピザを注文したら、DoorDashのカードから24ドル支払われた。DoorDashが手数料ガッポリ取ってたわけじゃなくて、注文を増やして正式に契約させたかっただけだと思う",
+   "19t2u70lae1ic": "それがタイトルな",
+   "19t2tgpxkpkpv": "何回返信しようとしても「親コメントが削除されました」って出るんだが、なんなんこれ。要約するとこうや\n店主はアプリでピザを注文（DoorDashに16ドル払う）して、取りに来たドライバーに実際のメニュー価格24ドルを請求して儲けた。\n当時DoorDashは店をアプリに増やそうとして、ネットのメニューを勝手に取り込んで掲載し、ドライバーにクレカ持たせて店に買いに行かせてた。店主は「この会社、うちに24ドル払って客には16ドルで売ってるやん」と気づいた。メニュー取り込みのミスが原因や",
+   "19t2txz52naxs": "みんな間違ったこと書いてて他のコメントで指摘されるか、もっと珍しいけど記事をちゃんと読んだかで、コメント消すからそういう表示になるんやで",
+   "19t2tfr7vicyp": "DoorDashは需要テストとしてこれやる。店を勝手に載せて、どれだけ客がいるか店主に見せて契約させるんや",
+   "19t2tua23ebky": "値段を3分の2にして載せといて、その上でそれやるの普通にゲスいだろ。まあDDらしいけど",
+   "19t2tcfi5p3xc": "それシリコンバレーの回のほぼそのまんまやん",
+   "19t2tfhxpcdnk": "あの回、この事件が元ネタなんじゃないの？",
+   "19t2tefjcaasj": "誰かタイトルを日本語…じゃなくて普通の英語に訳してくれ",
+   "19t2tlazjo7xf": "DoorDashが本人に黙って許可もなく店をプラットフォームに載せた。店主は当然ご立腹。当時（今もかも）DoorDashはアプリ上の食事代を補助して魅力的に見せてた。客が16ドルで注文すると、DoorDashは店に24ドル払う。ユーザーを増やすためにわざと赤字にして、ユーザーが集まったら値上げするって作戦やな。店主は仕組みに気づいて悪用した。自分の店のピザをDoorDashで注文して16ドル払うと、DoorDashが24ドル払ってくれる。何もせずに8ドル儲かる",
+   "19t2tiwi9855w": "店の価格24ドル、DDの販売価格16ドル。店主が注文して、DDで買って、8ドル残る",
+   "19t2t80wpa7fk": "タイトルで十分わかるやろ。満額払ってるのに8ドル安く売ってたんや。客が注文したら店主も同じのを注文する。ロスも出ないしな"
+  }
+ },
+ "published": "2026-11-25T11:54:02+00:00"
+}
