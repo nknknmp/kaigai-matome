@@ -5,7 +5,7 @@ import os
 import re
 import shutil
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).parent
@@ -14,6 +14,7 @@ ARTICLES = Path(os.environ.get("MATOME_ARTICLES") or ROOT / "data" / "articles")
 SITE = Path(os.environ.get("MATOME_SITE") or ROOT / "site")
 # 公開リポジトリの tool/ にコピーして GitHub Actions で動かすファイル（元はこのフォルダ）
 TOOL_FILES = ["matome.py", "build.py", "config.json"]
+JST = timezone(timedelta(hours=9))  # GitHub Actions は UTC で動くので、表示は日本時間に固定する
 
 sys.stdout.reconfigure(encoding="utf-8")
 
@@ -135,7 +136,7 @@ def page(title, body, cfg, depth=0):
 
 def meta_line(a):
     tags = "".join(f'<span class="tag">{html.escape(t)}</span>' for t in a["ja"].get("tags", []))
-    d = datetime.fromisoformat(a["published"]).astimezone().strftime("%Y/%m/%d %H:%M")
+    d = datetime.fromisoformat(a["published"]).astimezone(JST).strftime("%Y/%m/%d %H:%M")
     return f'<div class="meta">{tags} r/{html.escape(a["subreddit"])} ・ ⬆{a["score"]:,} ・ {d}</div>'
 
 

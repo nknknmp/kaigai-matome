@@ -402,7 +402,7 @@ def main():
                 continue
             ja = ask_claude(thread, cfg["claude_model"])
             if ja.get("skip"):
-                log(f"  ただのいい話なので除外: {p['title'][:60]}")
+                log(f"  除外（ただのいい話・個人の危機の相談）: {p['title'][:60]}")
                 skipped.add(p["id"])
                 skipped_file.write_text(json.dumps(sorted(skipped)), encoding="utf-8")
                 continue
