@@ -1,0 +1,58 @@
+# 海外まとめフィード: 毎朝 7:00（日本時間）に記事を作って公開する。
+# 元ファイルは dev-toolbox の redditTwitter/daily.yml。build.py が公開リポジトリへコピーする。
+name: daily
+
+on:
+  schedule:
+    - cron: "0 22 * * *"   # UTC 22:00 = 日本時間 7:00（GitHub 側の混雑で数十分遅れることがある）
+  workflow_dispatch:        # Actions の画面から手動でも動かせる
+    inputs:
+      count:
+        description: "作る本数（空なら config.json の articles_per_run）"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      MATOME_ARTICLES: ${{ github.workspace }}/data
+      MATOME_SITE: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Claude Code を入れる
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: 記事を作る
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: python tool/matome.py ${{ inputs.count }}
+
+      - name: ページとフィードを作る
+        run: python tool/build.py
+
+      - name: 公開する
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && { echo "変更なし"; exit 0; }
+          git commit -m "update $(TZ=Asia/Tokyo date +%Y-%m-%d)"
+          git push

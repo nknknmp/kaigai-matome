@@ -1,0 +1,26 @@
+{
+  "site_title": "海外まとめフィード",
+  "site_description": "英語圏の Reddit で話題になったスレを、原文と英語メモ付きの日本語で",
+  "site_url": "https://nknknmp.github.io/kaigai-matome/",
+
+  "subreddits": [
+    "news", "worldnews", "nottheonion", "technology", "science",
+    "todayilearned", "interestingasfuck", "Damnthatsinteresting", "BeAmazed", "mildlyinteresting",
+    "pics", "funny", "mildlyinfuriating", "facepalm", "OldSchoolCool",
+    "AmItheAsshole", "tifu", "LifeProTips", "NoStupidQuestions", "Showerthoughts", "explainlikeimfive",
+    "gaming", "movies", "television", "sports", "nba", "soccer",
+    "europe", "unitedkingdom", "canada", "australia"
+  ],
+
+  "window_start_hours_ago": 60,
+  "window_end_hours_ago": 36,
+  "articles_per_run": 15,
+  "max_per_subreddit": 2,
+  "min_score": 1000,
+
+  "comments_per_article": 10,
+  "replies_per_comment": 2,
+
+  "claude_model": "sonnet",
+  "feed_items": 60
+}
