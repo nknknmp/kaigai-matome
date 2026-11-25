@@ -135,6 +135,7 @@ PROMPT = """あなたは、日本の「海外の反応」系まとめブログ�
       「勝手にDoorDashに載せられたピザ屋、逆手に取って荒稼ぎ　「彼は天才だよ」」
       「97歳のおじいちゃんが家族のために焼いたデザートが尊い　「泣かせないでくれよ」」
   【悲報】【朗報】のような括弧の煽りや「www」は使わない。釣りすぎず、内容と合っていること。
+  実際の事件・犯罪・死亡や悲劇の話は、茶化したり「〜しちゃった」のような軽い言い方にしない。加害者を英雄視・美化する言い方もしない（コメントの訳は原文に忠実でよい）。
 - 背景: 日本人が前提を知らないと分かりにくい場合だけ、1〜2文で（アメリカの制度、人名、ネットミームなど）。不要なら「なし」。
 - タグ: ジャンルを1〜2個、読点区切り（例: ニュース, 雑学, 仕事, 恋愛, ゲーム, 映画, スポーツ, 政治, テック, 生活, 動物, 歴史, 笑い）。
 - 本文: スレ主の本文の翻訳。本文が空なら「なし」。
@@ -153,6 +154,8 @@ PROMPT = """あなたは、日本の「海外の反応」系まとめブログ�
 - コメントの大半が「素敵」「優しい」「泣ける」「おめでとう」「守りたい」などの称賛・祝福
 コメントに軽い冗談が混じっていても、話そのものが上のタイプなら除外する。
 ただし、動物や赤ちゃんの写真・動画（見たまま可愛い、面白い）は除外しない。
+実際の事件・犯罪・事故・死亡・未解決事件の話は、どんな内容でも「いい話」ではないので絶対に除外しない。
+別の理由で除外するもの: 投稿者本人の心の病・幻聴・妄想・自傷・自殺念慮など、いま助けを求めている個人的な危機の相談（他人の危機を読み物にしないため）。
 残すのは、動物・赤ちゃん、意外な事実、ニュース、議論や意見の対立、ツッコミどころ、変な出来事、驚き、怒り、考えさせられる話。
 
 除外しない場合は、次の形のテキストだけを出力してください（前後に説明を付けない。コメントは JSON にある id すべてについて書く）:
@@ -336,6 +339,32 @@ def main():
         log(f"r/{sub}: {len(posts)} スレ中 候補 {len(ok[:cfg['max_per_subreddit']])}")
 
     candidates.sort(key=lambda p: p["score"], reverse=True)
+
+    # 好きなジャンルの板（小さい板）は専用の枠で拾う。全体の👍順だと大きい板に負けて入らないため。
+    # 1日では伸びたスレが無いことが多いので、少し前まで遡る。
+    it = cfg.get("interest", {})
+    picks = []
+    i_after = now - it.get("window_start_hours_ago", 108) * 3600
+    for sub, threshold in it.get("subreddits", {}).items():
+        try:
+            posts = fetch_posts(sub, i_after, before)
+        except Exception as e:
+            log(f"r/{sub}: 取得失敗 {e}")
+            continue
+        nsfw_ok = sub in it.get("allow_nsfw", [])
+        ok = [p for p in posts if (nsfw_ok or not p.get("over_18"))
+              and p["score"] >= threshold and p["id"] not in done]
+        if ok:
+            best = max(ok, key=lambda p: p["score"])
+            best["_ratio"] = best["score"] / threshold
+            picks.append(best)
+        log(f"r/{sub}（好きなジャンル）: {len(posts)} スレ中 基準以上 {len(ok)}")
+    picks.sort(key=lambda p: p["_ratio"], reverse=True)  # 基準をどれだけ上回ったか順
+    for p in picks:
+        p["_interest"] = True
+    candidates = picks + [p for p in candidates if p["id"] not in {x["id"] for x in picks}]
+    interest_made = 0
+
     # 過去の記事・今回選んだものと同じ話題は飛ばす
     seen_titles = [json.loads(f.read_text(encoding="utf-8"))["title"] for f in ARTICLES.glob("*.json")]
     # ただのいい話として除外したスレ（翌日にまた判定して枠を使わないよう記録する）
@@ -349,6 +378,8 @@ def main():
             break
         if p["id"] in skipped:
             continue
+        if p.get("_interest") and interest_made >= it.get("slots", 5):
+            continue
         if any(same_topic(p["title"], t) for t in seen_titles):
             log(f"  同じ話題なので飛ばす: {p['title'][:60]}")
             continue
@@ -357,7 +388,9 @@ def main():
             thread = {"id": p["id"], "subreddit": p["subreddit"], "title": p["title"],
                       "selftext": (p.get("selftext") or "")[:3000], "author": p["author"],
                       "score": p["score"], "num_comments": p["num_comments"],
-                      "created_utc": int(p["created_utc"]), "image": image_of(p),
+                      "created_utc": int(p["created_utc"]),
+                      # 閲覧注意のスレ（事件系）は画像を出さない。グロテスクな写真をフィードに流さないため
+                      "image": "" if p.get("over_18") else image_of(p), "over_18": bool(p.get("over_18")),
                       "video": "video" in (p.get("post_hint") or "") or "v.redd.it" in (p.get("url") or ""),
                       "link": "" if image_of(p) or re.search(r"reddit\.com|redd\.it", p.get("url") or "") else p.get("url", ""),
                       "permalink": f"https://www.reddit.com/r/{p['subreddit']}/comments/{p['id']}/"}
@@ -379,6 +412,7 @@ def main():
             (ARTICLES / f"{day}-{p['id']}.json").write_text(
                 json.dumps(article, ensure_ascii=False, indent=1), encoding="utf-8")
             made += 1
+            interest_made += bool(p.get("_interest"))
             log(f"  ✔ {ja.get('title', '')[:50]}")
         except Exception as e:
             log(f"  {p['id']}: 失敗 {e}")

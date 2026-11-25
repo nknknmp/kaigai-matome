@@ -18,6 +18,24 @@
   "max_per_subreddit": 2,
   "min_score": 1000,
 
+  "interest": {
+    "slots": 5,
+    "window_start_hours_ago": 108,
+    "subreddits": {
+      "OMORI": 300,
+      "Columbine": 30,
+      "IncelTear": 30,
+      "IncelExit": 10,
+      "TrueCrimeDiscussion": 300,
+      "UnresolvedMysteries": 200,
+      "serialkillers": 100,
+      "RBI": 100,
+      "LetsNotMeet": 30,
+      "MorbidReality": 300
+    },
+    "allow_nsfw": ["LetsNotMeet", "MorbidReality", "serialkillers", "RBI", "Columbine", "TrueCrimeDiscussion", "UnresolvedMysteries"]
+  },
+
   "comments_per_article": 10,
   "replies_per_comment": 2,
 
