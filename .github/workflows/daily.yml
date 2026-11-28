@@ -47,6 +47,7 @@ jobs:
         run: npm install -g @anthropic-ai/claude-code
 
       - name: 記事を作る
+        id: make
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           THREAD_URL: ${{ inputs.url }}
@@ -64,3 +65,11 @@ jobs:
           git diff --cached --quiet && { echo "変更なし"; exit 0; }
           git commit -m "update $(TZ=Asia/Tokyo date +%Y-%m-%d)"
           git push
+
+      # URL を渡したときだけ、できたページを Raindrop.io に保存する（失敗しても記事は公開済みなので止めない）
+      - name: Raindrop に保存する
+        if: inputs.url != '' && steps.make.outputs.post_id != ''
+        continue-on-error: true
+        env:
+          RAINDROP_TOKEN: ${{ secrets.RAINDROP_TOKEN }}
+        run: python tool/matome.py --raindrop "${{ steps.make.outputs.post_id }}"

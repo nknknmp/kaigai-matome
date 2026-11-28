@@ -324,6 +324,9 @@ def main():
             except Exception as e:
                 log(f"  {a['id']}: 失敗 {e}")
         return
+    if len(sys.argv) == 3 and sys.argv[1] == "--raindrop":  # 例: python matome.py --raindrop 1y6i5ip
+        save_to_raindrop(sys.argv[2], cfg)
+        return
     if len(sys.argv) > 1 and re.search(r"reddit\.com|redd\.it", sys.argv[1]):
         # 例: python matome.py https://www.reddit.com/r/xxx/comments/abc123/... （そのスレだけ作る）
         make_from_url(sys.argv[1], cfg)
@@ -476,9 +479,33 @@ def post_id_of(url):
     return (m.group(1) or m.group(2)).lower()
 
 
+def save_to_raindrop(pid, cfg):
+    """記事のページを Raindrop.io に保存する。RAINDROP_TOKEN（テストトークン）が無ければ何もしない。"""
+    token = os.environ.get("RAINDROP_TOKEN")
+    if not token:
+        log("RAINDROP_TOKEN が無いので Raindrop には保存しない")
+        return
+    f = next(ARTICLES.glob(f"*-{pid}.json"), None)
+    if not f:
+        raise SystemExit(f"記事が見つからない: {pid}")
+    a = json.loads(f.read_text(encoding="utf-8"))
+    body = {"link": cfg["site_url"].rstrip("/") + f"/posts/{pid}.html",
+            "title": a["ja"]["title"], "excerpt": f"r/{a['subreddit']}",
+            "tags": ["海外まとめ"] + a["ja"].get("tags", []), "pleaseParse": {}}
+    req = urllib.request.Request("https://api.raindrop.io/rest/v1/raindrop",
+                                 data=json.dumps(body).encode("utf-8"), method="POST",
+                                 headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json",
+                                          "User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        log(f"Raindrop に保存した: {json.load(r).get('result')} {body['link']}")
+
+
 def make_from_url(url, cfg):
     ARTICLES.mkdir(parents=True, exist_ok=True)
     pid = post_id_of(url.strip())
+    if os.environ.get("GITHUB_OUTPUT"):  # 後の工程（Raindrop への保存）に ID を渡す
+        with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as g:
+            g.write(f"post_id={pid}\n")
     if any(ARTICLES.glob(f"*-{pid}.json")):
         log(f"もう記事になっている: {pid}")
         return
