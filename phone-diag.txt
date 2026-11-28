@@ -1,0 +1,12 @@
+// 診断用: HTTP Shortcuts で、スクリプトの関数が使えるかを調べる（typeof だけなので何も実行しない）
+const names = [];
+names.push('getVariable: ' + typeof getVariable);
+names.push('sendHttpRequest: ' + typeof sendHttpRequest);
+names.push('openUrl: ' + typeof openUrl);
+names.push('wait: ' + typeof wait);
+names.push('showToast: ' + typeof showToast);
+names.push('showDialog: ' + typeof showDialog);
+names.push('JSON.stringify: ' + typeof JSON.stringify);
+names.push('Date.now: ' + typeof Date.now);
+names.push('String.match: ' + typeof 'a'.match);
+showDialog(names.join('\n'), '診断');

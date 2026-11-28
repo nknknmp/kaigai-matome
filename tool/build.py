@@ -173,8 +173,9 @@ def export_to_site():
     (SITE / ".github" / "workflows").mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / "daily.yml", SITE / ".github" / "workflows" / "daily.yml")
     # スマホの HTTP Shortcuts に貼るスクリプト。スマホのブラウザで開いてコピーできるよう公開する
-    if (ROOT / "phone_shortcut.js").exists():
-        shutil.copy2(ROOT / "phone_shortcut.js", SITE / "phone-script.txt")
+    for src, dst in (("phone_shortcut.js", "phone-script.txt"), ("phone_diag.js", "phone-diag.txt")):
+        if (ROOT / src).exists():
+            shutil.copy2(ROOT / src, SITE / dst)
 
 
 def main():
