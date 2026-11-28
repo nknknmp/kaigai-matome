@@ -451,12 +451,26 @@ def post_id_of(url):
     """Reddit のスレの URL から投稿 ID を取り出す。短縮リンク（/r/xxx/s/AbCd）はリダイレクト先を読む。"""
     m = POST_URL.search(url)
     if not m and re.search(r"reddit\.com/r/[^/]+/s/", url):
-        req = urllib.request.Request(url, headers={"User-Agent": UA}, method="HEAD")
-        try:
-            with urllib.request.urlopen(req, timeout=30) as r:
-                m = POST_URL.search(r.geturl())
-        except urllib.error.HTTPError as e:  # 403 でも Location に行き先が入っていることがある
-            m = POST_URL.search(e.headers.get("Location") or "")
+        # reddit.com はデータセンターからだと弾くことがあるので、ホスト名とアクセスの仕方を変えて順に試す
+        hosts = ["www.reddit.com", "old.reddit.com", "api.reddit.com", "np.reddit.com"]
+        for host in hosts:
+            for ua in (UA, "Mozilla/5.0 (Android 14; Mobile) Chrome/126.0 Mobile Safari/537.36"):
+                u = re.sub(r"//[^/]+/", f"//{host}/", url, count=1)
+                req = urllib.request.Request(u, headers={"User-Agent": ua}, method="GET")
+                try:
+                    with urllib.request.urlopen(req, timeout=30) as r:
+                        m = POST_URL.search(r.geturl())
+                        log(f"  短縮リンク {host}: {r.status} → {r.geturl()[:80]}")
+                except urllib.error.HTTPError as e:  # 403 でも Location に行き先が入っていることがある
+                    # 行き先に進んだあとで 403 になった場合は、その URL（e.url）に ID が入っている
+                    m = POST_URL.search(e.headers.get("Location") or "") or POST_URL.search(e.url or "")
+                    log(f"  短縮リンク {host}: HTTP {e.code} Location={(e.headers.get('Location') or '-')[:80]}")
+                except Exception as e:
+                    log(f"  短縮リンク {host}: {type(e).__name__} {str(e)[:60]}")
+                if m:
+                    break
+            if m:
+                break
     if not m:
         raise ValueError(f"スレの URL として読めない: {url}")
     return (m.group(1) or m.group(2)).lower()
