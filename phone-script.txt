@@ -1,0 +1,72 @@
+// HTTP Shortcuts（Android）用スクリプト。Reddit の共有ボタンから呼ぶ。
+// 流れ: 共有された文章から URL を取り出す → 短縮リンク（/s/xxx）ならスマホから開いてスレ ID を取る
+//       → GitHub に「このスレを訳して」と送る → ページができるまで待つ → ブラウザで開く
+// 必要な変数: shared_url（共有から受け取る）、github_token（GitHub のトークン）
+
+function idOf(text) {
+  const m = (text || '').match(/(?:comments\/|redd\.it\/)([a-z0-9]+)/i);
+  return m ? m[1].toLowerCase() : null;
+}
+
+function main() {
+  const raw = getVariable('shared_url') || '';
+  const found = raw.match(/https?:\/\/[^\s]+/);
+  if (!found) {
+    showDialog('URLが見つかりません:\n' + raw, '失敗');
+    return;
+  }
+  const url = found[0];
+  let id = idOf(url);
+
+  if (!id) {
+    // 短縮リンク: まず行き先（Location）だけ読む。だめなら追いかけてページの中から探す
+    let r = sendHttpRequest(url, { followRedirects: false });
+    if (r.response) {
+      id = idOf(r.response.headers['Location'] || r.response.headers['location']);
+    }
+    if (!id) {
+      r = sendHttpRequest(url, { followRedirects: true });
+      if (r.response && r.response.body) {
+        const c = r.response.body.match(/rel="canonical"[^>]*comments\/([a-z0-9]+)/i)
+          || r.response.body.match(/comments\/([a-z0-9]+)/i);
+        if (c) id = c[1].toLowerCase();
+      }
+    }
+  }
+  if (!id) {
+    showDialog('スレのIDが取れませんでした:\n' + url, '失敗');
+    return;
+  }
+
+  const g = sendHttpRequest(
+    'https://api.github.com/repos/nknknmp/kaigai-matome/actions/workflows/daily.yml/dispatches',
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + getVariable('github_token'),
+        'Accept': 'application/vnd.github+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ ref: 'main', inputs: { url: 'https://redd.it/' + id } })
+    }
+  );
+  if (!g.response || g.response.statusCode != 204) {
+    showDialog('GitHubに送れませんでした:\n'
+      + (g.response ? g.response.statusCode + ' ' + g.response.body : g.networkError), '失敗');
+    return;
+  }
+
+  showToast('記事を作っています。できたら自動で開きます');
+  const page = 'https://nknknmp.github.io/kaigai-matome/posts/' + id + '.html';
+  for (let i = 0; i < 40; i++) {  // 15秒おきに最大10分
+    wait(15000);
+    const p = sendHttpRequest(page + '?t=' + Date.now());
+    if (p.response && p.response.statusCode == 200) {
+      openUrl(page);
+      return;
+    }
+  }
+  showDialog('まだページができていません。あとで開いてください:\n' + page, '時間切れ');
+}
+
+main();
