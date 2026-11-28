@@ -105,12 +105,16 @@ def fetch_thread(post, cfg):
                 "is_op": c["author"] == op_author, "body": c["body"][:1200]}
 
     tops = sorted([n for n in tree if usable(n)], key=lambda n: n["data"]["score"], reverse=True)
+    fresh = bool(tops) and tops[0]["data"]["score"] <= 1
+    if fresh:
+        # 立ったばかりのスレは点数が全部 0〜1 で並びが当てにならない。返信の多い順にし、返信も点数で絞らない
+        tops.sort(key=lambda n: len(children(n)), reverse=True)
     comments = []
     for n in tops[:cfg["comments_per_article"]]:
         item = pack(n["data"], post["author"])
         reps = sorted(children(n), key=lambda x: x["data"]["score"], reverse=True)
         item["replies"] = [pack(r["data"], post["author"]) for r in reps[:cfg["replies_per_comment"]]
-                           if r["data"]["score"] >= 5]
+                           if fresh or r["data"]["score"] >= 5]
         comments.append(item)
     return comments
 
@@ -215,13 +219,13 @@ def parse_sections(text):
                       for k, v in sec.items() if k.startswith("n:")}}
 
 
-def ask_claude(thread, model):
+def ask_claude(thread, model, force=False):
     """返答の形が崩れていたら、もう1回だけ頼む。"""
     try:
-        return _ask_claude(thread, model)
+        return _ask_claude(thread, model, force)
     except (ValueError, RuntimeError) as e:
         log(f"  やり直し（{str(e)[:60]}）")
-        return _ask_claude(thread, model)
+        return _ask_claude(thread, model, force)
 
 
 def thread_src(thread):
@@ -242,8 +246,12 @@ def run_claude(prompt, model):
     return r.stdout
 
 
-def _ask_claude(thread, model):
-    ja = parse_sections(run_claude(PROMPT + thread_src(thread), model))
+def _ask_claude(thread, model, force=False):
+    prompt = PROMPT
+    if force:  # 自分で選んだスレなので「いい話は除外」の判定は外す
+        prompt = re.sub(r"先に判定:.*?(?=除外しない場合は、)", "", PROMPT, flags=re.S)
+        prompt = prompt.replace("除外しない場合は、次の形", "次の形")
+    ja = parse_sections(run_claude(prompt + thread_src(thread), model))
     if ja.get("skip"):
         return ja
     if not ja["title"]:
@@ -316,7 +324,11 @@ def main():
             except Exception as e:
                 log(f"  {a['id']}: 失敗 {e}")
         return
-    if len(sys.argv) > 1:  # 例: python matome.py 3 （試しに3本だけ作る）
+    if len(sys.argv) > 1 and re.search(r"reddit\.com|redd\.it", sys.argv[1]):
+        # 例: python matome.py https://www.reddit.com/r/xxx/comments/abc123/... （そのスレだけ作る）
+        make_from_url(sys.argv[1], cfg)
+        return
+    if len(sys.argv) > 1 and sys.argv[1].strip():  # 例: python matome.py 3 （試しに3本だけ作る）
         cfg["articles_per_run"] = int(sys.argv[1])
     ARTICLES.mkdir(parents=True, exist_ok=True)
     done = {f.stem.split("-", 1)[1] for f in ARTICLES.glob("*.json")}
@@ -385,38 +397,86 @@ def main():
             continue
         seen_titles.append(p["title"])
         try:
-            thread = {"id": p["id"], "subreddit": p["subreddit"], "title": p["title"],
-                      "selftext": (p.get("selftext") or "")[:3000], "author": p["author"],
-                      "score": p["score"], "num_comments": p["num_comments"],
-                      "created_utc": int(p["created_utc"]),
-                      # 閲覧注意のスレ（事件系）は画像を出さない。グロテスクな写真をフィードに流さないため
-                      "image": "" if p.get("over_18") else image_of(p), "over_18": bool(p.get("over_18")),
-                      "video": "video" in (p.get("post_hint") or "") or "v.redd.it" in (p.get("url") or ""),
-                      "link": "" if image_of(p) or re.search(r"reddit\.com|redd\.it", p.get("url") or "") else p.get("url", ""),
-                      "permalink": f"https://www.reddit.com/r/{p['subreddit']}/comments/{p['id']}/"}
-            if thread["selftext"] in ("[deleted]", "[removed]"):
-                thread["selftext"] = ""
-            thread["comments"] = fetch_thread(p, cfg)
-            if not thread["comments"]:
-                log(f"  {p['id']}: コメントが取れないので飛ばす")
+            ja = make_article(p, cfg)
+            if ja is None:
                 continue
-            ja = ask_claude(thread, cfg["claude_model"])
             if ja.get("skip"):
                 log(f"  除外（ただのいい話・個人の危機の相談）: {p['title'][:60]}")
                 skipped.add(p["id"])
                 skipped_file.write_text(json.dumps(sorted(skipped)), encoding="utf-8")
                 continue
-            article = {**thread, "ja": ja,
-                       "published": datetime.now(timezone.utc).isoformat(timespec="seconds")}
-            day = datetime.now().strftime("%Y%m%d")
-            (ARTICLES / f"{day}-{p['id']}.json").write_text(
-                json.dumps(article, ensure_ascii=False, indent=1), encoding="utf-8")
             made += 1
             interest_made += bool(p.get("_interest"))
             log(f"  ✔ {ja.get('title', '')[:50]}")
         except Exception as e:
             log(f"  {p['id']}: 失敗 {e}")
     log(f"完了: {made} 本作成")
+
+
+def make_article(p, cfg, force=False):
+    """スレ1本を訳して data/articles/ に保存する。force=True なら「いい話は除外」の判定をしない。
+    コメントが取れなければ None、除外されたら {"skip": True}、作れたら訳（ja）を返す。"""
+    thread = {"id": p["id"], "subreddit": p["subreddit"], "title": p["title"],
+              "selftext": (p.get("selftext") or "")[:3000], "author": p["author"],
+              "score": p["score"], "num_comments": p["num_comments"],
+              "created_utc": int(p["created_utc"]),
+              # 閲覧注意のスレ（事件系）は画像を出さない。グロテスクな写真をフィードに流さないため
+              "image": "" if p.get("over_18") else image_of(p), "over_18": bool(p.get("over_18")),
+              "video": "video" in (p.get("post_hint") or "") or "v.redd.it" in (p.get("url") or ""),
+              "link": "" if image_of(p) or re.search(r"reddit\.com|redd\.it", p.get("url") or "") else p.get("url", ""),
+              "permalink": f"https://www.reddit.com/r/{p['subreddit']}/comments/{p['id']}/"}
+    if thread["selftext"] in ("[deleted]", "[removed]"):
+        thread["selftext"] = ""
+    thread["comments"] = fetch_thread(p, cfg)
+    if not thread["comments"]:
+        log(f"  {p['id']}: コメントが取れない")
+        return None
+    ja = ask_claude(thread, cfg["claude_model"], force)
+    if ja.get("skip"):
+        return ja
+    article = {**thread, "ja": ja,
+               "published": datetime.now(timezone.utc).isoformat(timespec="seconds")}
+    day = datetime.now().strftime("%Y%m%d")
+    (ARTICLES / f"{day}-{p['id']}.json").write_text(
+        json.dumps(article, ensure_ascii=False, indent=1), encoding="utf-8")
+    return ja
+
+
+# ---------- 共有された URL から1本だけ作る ----------
+
+POST_URL = re.compile(r"reddit\.com/(?:r/[^/]+/)?comments/([a-z0-9]+)|redd\.it/([a-z0-9]+)", re.I)
+
+
+def post_id_of(url):
+    """Reddit のスレの URL から投稿 ID を取り出す。短縮リンク（/r/xxx/s/AbCd）はリダイレクト先を読む。"""
+    m = POST_URL.search(url)
+    if not m and re.search(r"reddit\.com/r/[^/]+/s/", url):
+        req = urllib.request.Request(url, headers={"User-Agent": UA}, method="HEAD")
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                m = POST_URL.search(r.geturl())
+        except urllib.error.HTTPError as e:  # 403 でも Location に行き先が入っていることがある
+            m = POST_URL.search(e.headers.get("Location") or "")
+    if not m:
+        raise ValueError(f"スレの URL として読めない: {url}")
+    return (m.group(1) or m.group(2)).lower()
+
+
+def make_from_url(url, cfg):
+    ARTICLES.mkdir(parents=True, exist_ok=True)
+    pid = post_id_of(url.strip())
+    if any(ARTICLES.glob(f"*-{pid}.json")):
+        log(f"もう記事になっている: {pid}")
+        return
+    posts = api_get("/posts/ids", ids=pid)["data"]
+    if not posts:
+        raise SystemExit(f"Arctic Shift にまだ無い（立って数分〜数時間はかかる）: {pid}")
+    p = posts[0]
+    log(f"r/{p['subreddit']}: {p['title'][:60]}")
+    ja = make_article(p, cfg, force=True)
+    if ja is None:
+        raise SystemExit("コメントがまだ取れない。少し待ってからもう一度")
+    log(f"完了: {ja.get('title', '')[:50]}")
 
 
 if __name__ == "__main__":

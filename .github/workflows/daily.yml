@@ -2,11 +2,17 @@
 # 元ファイルは dev-toolbox の redditTwitter/daily.yml。build.py が公開リポジトリへコピーする。
 name: daily
 
+# 2026-11-28 に毎朝の自動作成（cron）をやめた。大きな板から点数順で選ぶと興味の無い記事ばかりだったため。
+# 今は「url」を渡されたスレ1本だけを訳す（スマホの共有ボタンから呼ぶ）。戻すときは下の schedule を復活させる:
+#   schedule:
+#     - cron: "0 22 * * *"   # UTC 22:00 = 日本時間 7:00
 on:
-  schedule:
-    - cron: "0 22 * * *"   # UTC 22:00 = 日本時間 7:00（GitHub 側の混雑で数十分遅れることがある）
-  workflow_dispatch:        # Actions の画面から手動でも動かせる
+  workflow_dispatch:        # Actions の画面・スマホから手動で動かす
     inputs:
+      url:
+        description: "訳したい Reddit のスレの URL（空なら config.json の板から自動で作る）"
+        required: false
+        default: ""
       count:
         description: "作る本数（空なら config.json の articles_per_run）"
         required: false
@@ -43,7 +49,9 @@ jobs:
       - name: 記事を作る
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-        run: python tool/matome.py ${{ inputs.count }}
+          THREAD_URL: ${{ inputs.url }}
+          THREAD_COUNT: ${{ inputs.count }}
+        run: python tool/matome.py "${THREAD_URL:-$THREAD_COUNT}"
 
       - name: ページとフィードを作る
         run: python tool/build.py
