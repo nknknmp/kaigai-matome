@@ -2,34 +2,48 @@
 // 流れ: 共有された文章から URL を取り出す → 短縮リンク（/s/xxx）ならスマホから開いてスレ ID を取る
 //       → GitHub に「このスレを訳して」と送る → ページができるまで待つ → ブラウザで開く
 // 必要な変数: shared_url（共有から受け取る）、github_token（GitHub のトークン）
+// 注: アプリの JS では、変数・レスポンスの値が JS の文字列でないことがあり、.match が
+//     "not a function" になった（2026-11-28）。受け取った値はすべて String() で包む。
+
+let step = '開始';
+
+function str(v) {
+  return (v === null || v === undefined) ? '' : String(v);
+}
 
 function idOf(text) {
-  const m = (text || '').match(/(?:comments\/|redd\.it\/)([a-z0-9]+)/i);
-  return m ? m[1].toLowerCase() : null;
+  const m = str(text).match(/(?:comments\/|redd\.it\/)([a-z0-9]+)/i);
+  return m ? str(m[1]).toLowerCase() : null;
+}
+
+function header(res, name) {
+  const h = res.headers || {};
+  return str(h[name] || h[name.toLowerCase()]);
 }
 
 function main() {
-  const raw = getVariable('shared_url') || '';
+  step = '共有された文章を読む';
+  const raw = str(getVariable('shared_url'));
   const found = raw.match(/https?:\/\/[^\s]+/);
   if (!found) {
     showDialog('URLが見つかりません:\n' + raw, '失敗');
     return;
   }
-  const url = found[0];
+  const url = str(found[0]);
   let id = idOf(url);
 
   if (!id) {
-    // 短縮リンク: まず行き先（Location）だけ読む。だめなら追いかけてページの中から探す
+    step = '短縮リンクの行き先を読む（Location）';
     let r = sendHttpRequest(url, { followRedirects: false });
-    if (r.response) {
-      id = idOf(r.response.headers['Location'] || r.response.headers['location']);
-    }
+    if (r.response) id = idOf(header(r.response, 'Location'));
     if (!id) {
+      step = '短縮リンクを追いかけてページから探す';
       r = sendHttpRequest(url, { followRedirects: true });
-      if (r.response && r.response.body) {
-        const c = r.response.body.match(/rel="canonical"[^>]*comments\/([a-z0-9]+)/i)
-          || r.response.body.match(/comments\/([a-z0-9]+)/i);
-        if (c) id = c[1].toLowerCase();
+      if (r.response) {
+        const body = str(r.response.body);
+        const c = body.match(/rel="canonical"[^>]*comments\/([a-z0-9]+)/i)
+          || body.match(/comments\/([a-z0-9]+)/i);
+        if (c) id = str(c[1]).toLowerCase();
       }
     }
   }
@@ -38,12 +52,13 @@ function main() {
     return;
   }
 
+  step = 'GitHub に送る';
   const g = sendHttpRequest(
     'https://api.github.com/repos/nknknmp/kaigai-matome/actions/workflows/daily.yml/dispatches',
     {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer ' + getVariable('github_token'),
+        'Authorization': 'Bearer ' + str(getVariable('github_token')),
         'Accept': 'application/vnd.github+json',
         'Content-Type': 'application/json'
       },
@@ -52,16 +67,18 @@ function main() {
   );
   if (!g.response || g.response.statusCode != 204) {
     showDialog('GitHubに送れませんでした:\n'
-      + (g.response ? g.response.statusCode + ' ' + g.response.body : g.networkError), '失敗');
+      + (g.response ? g.response.statusCode + ' ' + str(g.response.body) : str(g.networkError)), '失敗');
     return;
   }
 
+  step = 'ページができるのを待つ';
   showToast('記事を作っています。できたら自動で開きます');
   const page = 'https://nknknmp.github.io/kaigai-matome/posts/' + id + '.html';
   for (let i = 0; i < 40; i++) {  // 15秒おきに最大10分
     wait(15000);
     const p = sendHttpRequest(page + '?t=' + Date.now());
     if (p.response && p.response.statusCode == 200) {
+      step = 'ページを開く';
       openUrl(page);
       return;
     }
@@ -69,4 +86,8 @@ function main() {
   showDialog('まだページができていません。あとで開いてください:\n' + page, '時間切れ');
 }
 
-main();
+try {
+  main();
+} catch (e) {
+  showDialog('エラー（' + step + '）:\n' + str(e), '失敗');
+}
